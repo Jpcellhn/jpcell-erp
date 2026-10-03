@@ -1,0 +1,60 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Producto {
+  id String @id @default(cuid())
+  nombre String
+  sku String? @unique
+  precio Float
+  costo Float @default(0)
+  stock Int @default(0)
+  categoria String?
+  createdAt DateTime @default(now())
+  ventaItems VentaItem[]
+}
+
+model Cliente {
+  id String @id @default(cuid())
+  nombre String
+  telefono String?
+  email String?
+  direccion String?
+  createdAt DateTime @default(now())
+  ventas Venta[]
+}
+
+model Venta {
+  id String @id @default(cuid())
+  total Float
+  clienteId String?
+  metodoPago String @default("Efectivo")
+  createdAt DateTime @default(now())
+  cliente Cliente? @relation(fields: [clienteId], references: [id])
+  items VentaItem[]
+}
+
+model VentaItem {
+  id String @id @default(cuid())
+  ventaId String
+  productoId String
+  cantidad Int
+  precio Float
+  venta Venta @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  producto Producto @relation(fields: [productoId], references: [id])
+}
+
+model Gasto {
+  id String @id @default(cuid())
+  concepto String
+  monto Float
+  categoria String?
+  createdAt DateTime @default(now())
+}
